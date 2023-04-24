@@ -18,14 +18,14 @@ ocserv_ver="0.12.6"
 PID_FILE="/var/run/ocserv.pid"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
-Info="${Green_font_prefix}[信息]${Font_color_suffix}"
-Error="${Red_font_prefix}[错误]${Font_color_suffix}"
-Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
+Info="${Green_font_prefix}[اطلاعات]${Font_color_suffix}"
+Error="${Red_font_prefix}[خطا]${Font_color_suffix}"
+Tip="${Green_font_prefix}[توجه]${Font_color_suffix}"
 
 check_root(){
-	[[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
+	[[ $EUID != 0 ]] && echo -e "${Error} حساب فعلی غیر روت(یا بدون امتیازات ROOT)，نمی توان ادامه داد，لطفاً اکانت ROOT را تغییر دهید یا از آن استفاده کنید ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
 }
-#检查系统
+# سیستم چک
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
 		release="centos"
@@ -45,8 +45,8 @@ check_sys(){
 	#bit=`uname -m`
 }
 check_installed_status(){
-	[[ ! -e ${file} ]] && echo -e "${Error} ocserv 没有安装，请检查 !" && exit 1
-	[[ ! -e ${conf} ]] && echo -e "${Error} ocserv 配置文件不存在，请检查 !" && [[ $1 != "un" ]] && exit 1
+	[[ ! -e ${file} ]] && echo -e "${Error} ocserv نصب نشده，چک کن لطفا !" && exit 1
+	[[ ! -e ${conf} ]] && echo -e "${Error} ocserv فایل پیکربندی وجود ندارد，چک کن لطفا !" && [[ $1 != "un" ]] && exit 1
 }
 check_pid(){
 	if [[ ! -e ${PID_FILE} ]]; then
@@ -70,7 +70,7 @@ Get_ip(){
 Download_ocserv(){
 	mkdir "ocserv" && cd "ocserv"
 	wget "ftp://ftp.infradead.org/pub/ocserv/ocserv-${ocserv_ver}.tar.xz"
-	[[ ! -s "ocserv-${ocserv_ver}.tar.xz" ]] && echo -e "${Error} ocserv 源码文件下载失败 !" && rm -rf "ocserv/" && rm -rf "ocserv-${ocserv_ver}.tar.xz" && exit 1
+	[[ ! -s "ocserv-${ocserv_ver}.tar.xz" ]] && echo -e "${Error} ocserv دانلود فایل منبع ناموفق بود !" && rm -rf "ocserv/" && rm -rf "ocserv-${ocserv_ver}.tar.xz" && exit 1
 	tar -xJf ocserv-${ocserv_ver}.tar.xz && cd ocserv-${ocserv_ver}
 	./configure
 	make
@@ -81,7 +81,7 @@ Download_ocserv(){
 	if [[ -e ${file} ]]; then
 		mkdir "${conf_file}"
 		wget --no-check-certificate -N -P "${conf_file}" "https://raw.githubusercontent.com/lllvcs/ocserv/master/ocserv.conf"
-		[[ ! -s "${conf}" ]] && echo -e "${Error} ocserv 配置文件下载失败 !" && rm -rf "${conf_file}" && exit 1
+		[[ ! -s "${conf}" ]] && echo -e "${Error} ocserv دانلود فایل پیکربندی انجام نشد !" && rm -rf "${conf_file}" && exit 1
 	else
 		echo -e "${Error} ocserv 编译安装失败，请检查！" && exit 1
 	fi
@@ -92,7 +92,7 @@ Service_ocserv(){
 	fi
 	chmod +x /etc/init.d/ocserv
 	update-rc.d -f ocserv defaults
-	echo -e "${Info} ocserv 服务 管理脚本下载完成 !"
+	echo -e "${Info} ocserv دانلود اسکریپت مدیریت سرویس کامل شد !"
 }
 rand(){
 	min=10000
@@ -111,17 +111,17 @@ ca
 signing_key
 cert_signing_key
 crl_signing_key' > ca.tmpl
-	[[ $? != 0 ]] && echo -e "${Error} 写入SSL证书签名模板失败(ca.tmpl) !" && over
+	[[ $? != 0 ]] && echo -e "${Error} نوشتن الگوی امضای گواهینامه SSL انجام نشد(ca.tmpl) !" && over
 	certtool --generate-privkey --outfile ca-key.pem
-	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书密匙文件失败(ca-key.pem) !" && over
+	[[ $? != 0 ]] && echo -e "${Error} فایل کلید گواهی SSL ایجاد نشد(ca-key.pem) !" && over
 	certtool --generate-self-signed --load-privkey ca-key.pem --template ca.tmpl --outfile ca-cert.pem
-	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书文件失败(ca-cert.pem) !" && over
+	[[ $? != 0 ]] && echo -e "${Error} فایل گواهی SSL ایجاد نشد(ca-cert.pem) !" && over
 	
 	Get_ip
 	if [[ -z "$ip" ]]; then
-		echo -e "${Error} 检测外网IP失败 !"
-		read -e -p "请手动输入你的服务器外网IP:" ip
-		[[ -z "${ip}" ]] && echo "取消..." && over
+		echo -e "${Error} شناسایی IP شبکه خارجی انجام نشد !"
+		read -e -p "لطفاً IP شبکه خارجی سرور خود را به صورت دستی وارد کنید:" ip
+		[[ -z "${ip}" ]] && echo "لغو کنید..." && over
 	fi
 	echo -e 'cn = "'${ip}'"
 organization = "'${lalala}'"
@@ -168,30 +168,30 @@ Installation_dependency(){
 Install_ocserv(){
 	check_root
 	[[ -e ${file} ]] && echo -e "${Error} ocserv 已安装，请检查 !" && exit 1
-	echo -e "${Info} 开始安装/配置 依赖..."
+	echo -e "${Info} شروع نصب/پیکربندی وابستگی ها..."
 	Installation_dependency
-	echo -e "${Info} 开始下载/安装 配置文件..."
+	echo -e "${Info} شروع دانلود/نصب فایل پیکربندی..."
 	Download_ocserv
-	echo -e "${Info} 开始下载/安装 服务脚本(init)..."
+	echo -e "${Info} شروع دانلود/نصب اسکریپت سرویس (init)..."
 	Service_ocserv
-	echo -e "${Info} 开始自签SSL证书..."
+	echo -e "${Info} شروع گواهی SSL خودامضا..."
 	Generate_SSL
-	echo -e "${Info} 开始设置账号配置..."
+	echo -e "${Info} شروع به تنظیم پیکربندی حساب..."
 	Read_config
 	Set_Config
-	echo -e "${Info} 开始设置 iptables防火墙..."
+	echo -e "${Info} راه اندازی فایروال iptables را شروع کنید..."
 	Set_iptables
-	echo -e "${Info} 开始添加 iptables防火墙规则..."
+	echo -e "${Info} شروع به اضافه کردن قوانین فایروال iptables..."
 	Add_iptables
-	echo -e "${Info} 开始保存 iptables防火墙规则..."
+	echo -e "${Info} شروع به ذخیره قوانین فایروال iptables..."
 	Save_iptables
-	echo -e "${Info} 所有步骤 安装完毕，开始启动..."
+	echo -e "${Info} تمام مراحل نصب شده است، شروع به شروع کنید..."
 	Start_ocserv
 }
 Start_ocserv(){
 	check_installed_status
 	check_pid
-	[[ ! -z ${PID} ]] && echo -e "${Error} ocserv 正在运行，请检查 !" && exit 1
+	[[ ! -z ${PID} ]] && echo -e "${Error} ocserv در حال اجرا，چک کن لطفا !" && exit 1
 	/etc/init.d/ocserv start
 	sleep 2s
 	check_pid
